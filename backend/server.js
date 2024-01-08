@@ -10,7 +10,7 @@ port= process.env.port || 5000;
 app.use(cors());
 app.use(express.json()); 
 
-mongoose.connect(MONGODB_URL).then(()=>console.log("connected to mongoDB.......")).catch((error)=>console.log(error))
+mongoose.connect(process.env.MONGODB_URL).then(()=>console.log("connected to mongoDB.......")).catch((error)=>console.log(error))
 
 app.use(router);
 app.listen(port,(req,res)=>{
