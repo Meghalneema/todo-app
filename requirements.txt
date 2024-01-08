@@ -1,0 +1,273 @@
+npm init
+npm i express cors mongoose dotenv
+npm i -g nodemon
+mongoose web=   project name=todo
+                cluster name= todo-cluster
+                username=meghal
+                password=admin
+
+routes= routers
+controllers= connect routers and modules
+modules= mongoDb schema                
+
+for creating the froentend folder in cmd write  => npx create-react-app frontend   cd frontend   npm start
+
+                                  npm create vite@latest(project name), react, javascript
+                                  cd todoList 
+                                  npm install
+                                  npm install axios react-icons
+                                  npm run dev
+
+es6 es7  react native script  (rafce  in components->ToDo.js)
+npm i react-icons(in frontend folder)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+====================================
+index.html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+
+
+
+
+
+components -> ToDo.jsx
+
+import React from 'react';
+import { BiEdit } from 'react-icons/bi';
+import { AiFillDelete } from 'react-icons/ai';
+
+const ToDo = ({text,updateMode,deleteTodo}) =>{
+    return(
+        <div className="toDo">
+            <div className="text">{text}</div>
+            <div className="icons">
+                <BiEdit className="icon"  onClick={updateMode}/>
+                <AiFillDelete className="icon"  onClick={deleteTodo}/>
+            </div>
+        </div>
+    )
+}
+
+export default ToDo;
+
+
+
+
+
+utils-> HandleApi.js
+
+import axios from 'axios'
+
+const baseUrl="http://localhost:5000"
+
+const getAllToDO=(setToDo)=>{
+    axios.get(baseUrl).then(({data})=>{
+        console.log("data-- ",data);
+        setToDo(data)
+    })
+}
+
+const addToDO=(text,setText,setToDo)=>{
+    axios.post(`${baseUrl}/save`,{text}).then(({data})=>{
+        console.log("data-- ",data);
+        setText("")
+        getAllToDO(setToDo)
+    })
+    .catch((err) => console.log(err))
+}
+
+const updateToDo=(toDoId,text,setToDo,setText,setIsUpdating)=>{
+    axios.post(`${baseUrl}/update`,{_id:toDoId,text}).then(({data})=>{
+        
+        setText("")
+        setIsUpdating(false)
+        getAllToDO(setToDo)
+    })
+    .catch((err) => console.log(err))
+}
+
+export{getAllToDO,addToDO,updateToDo}
+
+
+
+
+
+index.css
+
+*{
+  text-align: center;
+}
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+.container{
+  max-width: 600px;
+  margin: auto;
+  padding: 0 1rem;
+}
+h1{
+  margin-top: 1rem;
+  text-align: center;
+}
+.Top{
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+input{
+  border: none;
+  outline: none;
+  width: 400px;
+  padding: 0 0.5rem;
+  border-bottom: 1px solid black;
+}
+.Add{
+  background-color: black;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+}
+.toDo{
+  position: relative;
+  margin-top: 1rem;
+  background-color:black ;
+  color:white ;
+  padding: 1.5rem 3rem;
+  border-radius: 5px;
+}
+.icons{
+  position:absolute;
+  top: 50%;
+  transform: translate(-50%);
+  right: 15px;
+  display: flex;
+  gap: 0.5rem;
+}
+.icon{
+  cursor: pointer;
+  font-size:20px ;
+  padding-left: 10px;
+  margin-right: 10px;
+}
+/* text{
+  
+
+}  */
+
+/* .List{
+  font-size: 30px;
+}
+/* 
+.App{
+
+}  */
+
+
+
+
+App.jsx
+
+// import reactLogo from './assets/react.svg'
+// import viteLogo from '/vite.svg'
+import { useEffect } from 'react'
+import './App.css'
+import ToDo from './components/ToDo'
+import { useState } from 'react'
+import { addToDO, getAllToDO,updateToDo } from './utils/HandleApi'
+
+
+function App() {
+  const [todo, setToDo] = useState([])
+  const [text, setText] = useState("")
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [toDoId, setToDoId] = useState("")
+
+
+  useEffect(()=>{ 
+    getAllToDO(setToDo)
+  },[])
+
+  const updateMode = (_id,text) => {
+    setIsUpdating(true)
+    setText(text)
+    setToDoId(_id)
+  }
+
+  return (
+    <div>
+      {/* <div>Home page</div> */}
+      <div className='App'></div>
+      <div className='container'></div>
+      <h1>ToDo App </h1>
+      <div className='Top'>
+        <input type='text' placeholder='Add ToDo....' value={text} onChange={(e) => setText(e.target.value)}/>
+        <div className='Add' onClick={isUpdating ?() => updateToDo(toDoId,text,setToDo,setText,setIsUpdating) : ()=>addToDO(text,setText,setToDo)}>
+          {isUpdating ? "update":"Add"}
+          
+          </div>
+        
+        <div className='List'>
+          {todo.map((item) => <ToDo key={item._id} text={item.text} updateMode={()=> updateMode(item._id,item.text)}/>)}
+
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+export default App
+
+
+
+// <ToDo text="Hi"/>
+//           <ToDo text="Hello"/>
+//           <ToDo text="world"/>
+
+
+
+
+
+main.jsx
+
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
